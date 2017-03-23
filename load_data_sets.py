@@ -37,10 +37,11 @@ def make_onehot(coords):
 def find_sgf_files(*dataset_dirs):
     for dataset_dir in dataset_dirs:
         full_dir = os.path.join(os.getcwd(), dataset_dir)
-        dataset_files = [os.path.join(full_dir, name) for name in os.listdir(full_dir)]
-        for f in dataset_files:
-            if os.path.isfile(f) and f.endswith(".sgf"):
-                yield f
+        for subdir, dirs, files in os.walk(full_dir):
+            dataset_files = [os.path.join(subdir, name) for name in os.listdir(subdir)]
+            for f in dataset_files:
+                if os.path.isfile(f) and f.endswith(".sgf"):
+                    yield f
 
 def get_positions_from_sgf(file):
     with open(file) as f:
@@ -53,7 +54,7 @@ def split_test_training(positions_w_context, est_num_positions):
     desired_test_size = 10**5
     if est_num_positions < 2 * desired_test_size:
         positions_w_context = list(positions_w_context)
-        test_size = len(positions_w_context) // 3
+        test_size = len(positions_w_context) // 20
         return positions_w_context[:test_size], [positions_w_context[test_size:]]
     else:
         test_chunk = take_n(desired_test_size, positions_w_context)
